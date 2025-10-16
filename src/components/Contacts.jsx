@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import ContactsList from "./ContactsList";
-
+const inputs = [
+  { type: "text", name: "name", placeholder: "Name" },
+  { type: "text", name: "lastName", placeholder: "Last Name" },
+  { type: "email", name: "email", placeholder: "Email" },
+  { type: "number", name: "phone", placeholder: "Phone" },
+];
 function Contacts() {
   const [contacts, setContacts] = useState([]);
+  const [alert, setAlert] = useState("");
   const [contact, setContact] = useState({
     name: "",
     lastName: "",
@@ -15,7 +21,17 @@ function Contacts() {
     setContact((contact) => ({ ...contact, [name]: value }));
   };
   const addHandler = () => {
-    setContacts((contacts) => [...Contacts, contact]);
+    if (
+      !contact.name ||
+      !contact.lastName ||
+      !contact.email ||
+      !contact.phone
+    ) {
+      setAlert("Please enter valid data!");
+      return;
+    }
+    setAlert("");
+    setContacts((contacts) => [...contacts, contact]);
     setContact({
       name: "",
       lastName: "",
@@ -26,37 +42,21 @@ function Contacts() {
   return (
     <div>
       <div>
-        <input
-          type="text"
-          placeholder="Name"
-          value={contact.name}
-          name="name"
-          onChange={changeHandler}
-        />
-        <input
-          type="text"
-          placeholder="Last Name"
-          value={contact.lastName}
-          name="lastName"
-          onChange={changeHandler}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={contact.email}
-          name="email"
-          onChange={changeHandler}
-        />
-        <input
-          type="number"
-          placeholder="Phone"
-          value={contact.phone}
-          name="phone"
-          onChange={changeHandler}
-        />
+        {inputs.map((input,index) => (
+          <input
+            key={index}
+            type={input.type}
+            placeholder={input.placeholder}
+            name={input.name}
+            value={contact[input.name]}
+            onChange={changeHandler}
+          />
+        ))}
+
         <button onClick={addHandler}>Add Contact</button>
       </div>
-      <ContactsList contacts={contacts}/>
+      <div>{alert && <p>{alert}</p>}</div>
+      <ContactsList contacts={contacts} />
     </div>
   );
 }
