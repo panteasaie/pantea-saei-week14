@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Header from './components/Header'
-
+import Contacts from './components/Contacts'
 
 function App() {
   
@@ -8,6 +8,7 @@ function App() {
   return (
  <>
  <Header/>
+ <Contacts/>
  </>
     
   )
