@@ -1,22 +1,24 @@
 import React from 'react'
-
+import styles from './ContactItem.module.css'
+import { FaTrashCan,FaPhoneVolume } from "react-icons/fa6";
+import { MdOutlineAlternateEmail } from "react-icons/md";
 function ContactItem({data:{id,name,lastName,email,phone},deleteHandler,}) {
   
   return (
-    <li key={id}>
+    <li className={styles.item}>
               <p>
                 {name}
                 {lastName}
               </p>
               <p>
-                <span>📩</span>
+                <span><MdOutlineAlternateEmail/></span>
                 {email}
               </p>
               <p>
-                <span>📲</span>
+                <span><FaPhoneVolume/></span>
                 {phone}
               </p>
-              <button onClick={()=>deleteHandler(id)}>Delete</button>
+              <button onClick={()=>deleteHandler(id)} ><FaTrashCan/></button>
             </li>
   )
 }
