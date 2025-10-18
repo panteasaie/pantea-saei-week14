@@ -1,10 +1,21 @@
-import React from 'react'
-
-function ContactsList(props) {
-    console.log(props)
+import React from "react";
+import Contacts from "./Contacts";
+import ContactItem from "./ContactItem";
+function ContactsList({ contacts,deleteHandler }) {
   return (
-    <div>ContactsList</div>
-  )
+    <div>
+      <h3>Contacts List</h3>
+      {contacts.length ? (
+        <ul>
+          {contacts.map((contact) => (
+            <ContactItem key={contact.id} data={contact} deleteHandler={deleteHandler}/>
+          ))}
+        </ul>
+      ) : (
+        <p>No Contacts Yet!</p>
+      )}
+    </div>
+  );
 }
 
-export default ContactsList
+export default ContactsList;

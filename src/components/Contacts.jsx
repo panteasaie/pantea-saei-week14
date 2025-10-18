@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import ContactsList from "./ContactsList";
-const inputs = [
-  { type: "text", name: "name", placeholder: "Name" },
-  { type: "text", name: "lastName", placeholder: "Last Name" },
-  { type: "email", name: "email", placeholder: "Email" },
-  { type: "number", name: "phone", placeholder: "Phone" },
-];
+import inputs from "../constansts/inputs";
+import { v4 } from "uuid";
 function Contacts() {
   const [contacts, setContacts] = useState([]);
   const [alert, setAlert] = useState("");
   const [contact, setContact] = useState({
+    id: "",
     name: "",
     lastName: "",
     email: "",
@@ -31,7 +28,8 @@ function Contacts() {
       return;
     }
     setAlert("");
-    setContacts((contacts) => [...contacts, contact]);
+    const newContact = { ...contact, id: v4() };
+    setContacts((contacts) => [...contacts, newContact]);
     setContact({
       name: "",
       lastName: "",
@@ -39,10 +37,14 @@ function Contacts() {
       phone: "",
     });
   };
+  const deleteHandler = (id) => {
+    const newContacts = contacts.filter((contact) => contact.id !== id);
+    setContacts(newContacts)
+  };
   return (
     <div>
       <div>
-        {inputs.map((input,index) => (
+        {inputs.map((input, index) => (
           <input
             key={index}
             type={input.type}
@@ -56,7 +58,7 @@ function Contacts() {
         <button onClick={addHandler}>Add Contact</button>
       </div>
       <div>{alert && <p>{alert}</p>}</div>
-      <ContactsList contacts={contacts} />
+      <ContactsList contacts={contacts} deleteHandler={deleteHandler} />
     </div>
   );
 }
