@@ -2,7 +2,8 @@ import React from 'react'
 import styles from './ContactItem.module.css'
 import { FaTrashCan,FaPhoneVolume } from "react-icons/fa6";
 import { MdOutlineAlternateEmail } from "react-icons/md";
-function ContactItem({data:{id,name,lastName,email,phone},deleteHandler,}) {
+import { RiEdit2Fill } from "react-icons/ri";
+function ContactItem({data:{id,name,lastName,email,phone},handleDelete,editHandler}) {
   
   return (
     <li className={styles.item}>
@@ -18,7 +19,8 @@ function ContactItem({data:{id,name,lastName,email,phone},deleteHandler,}) {
                 <span><FaPhoneVolume/></span>
                 {phone}
               </p>
-              <button onClick={()=>deleteHandler(id)} ><FaTrashCan/></button>
+              <button onClick={()=>handleDelete(id)} ><FaTrashCan/></button>
+              <button onClick={()=>editHandler(id)}><RiEdit2Fill/></button>
             </li>
   )
 }
