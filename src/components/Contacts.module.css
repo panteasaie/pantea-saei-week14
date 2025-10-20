@@ -52,11 +52,36 @@ box-shadow: #0c2ad487 0px 7px 29px 0px;
     padding: 10px;
     border-radius: 10px;
 }
+.searchInput{
+    width: 400px;
+    
+    align-items: center;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin: 16px 10px;
+    border: none;
+    background: #d0d3da;
+    cursor: pointer;
+    box-shadow:   0 4px 6px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;  
+    transition: all 0.2s ease; 
+}
+
+.searchInput input{
+    color: #fff;
+}
 @media(max-width:500px){
     .form input{
         width: 90%;
     }
     .form button{
         width: 90%;
+    }
+    .searchInput{
+        width: 100%;
+        padding: 10px;
+        flex-direction: column;
+        margin: 10px 0;
     }
 }

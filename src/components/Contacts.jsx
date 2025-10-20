@@ -4,6 +4,7 @@ import ContactsList from "./ContactsList";
 import inputs from "../constansts/inputs";
 import styles from "./Contacts.module.css";
 import ConfirmModal from "./ConfirmModal";
+import { FaSearch } from "react-icons/fa";
 function Contacts() {
   const [contacts, setContacts] = useState([]);
   const [alert, setAlert] = useState("");
@@ -16,8 +17,11 @@ function Contacts() {
   });
   const [edit, setEdit] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isConfirmEditOpen, setIsConfirmEditOpen] = useState(false);
+  const [pendingEdit, setIsPendingEdit] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [search, setSearch] = useState("");
   const changeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
@@ -44,19 +48,17 @@ function Contacts() {
     });
   };
   const deleteHandler = (id) => {
-    console.log("real")
+    console.log("real");
     const newContacts = contacts.filter((contact) => contact.id !== id);
     setContacts(newContacts);
-    
   };
   const handleDelete = (id) => {
-    console.log("Ask",id)
+    console.log("Ask", id);
     setPendingDeleteId(id);
     setIsConfirmOpen(true);
-    
   };
   const confirmDeleteHandler = () => {
-    console.log("confirm",pendingDeleteId)
+    console.log("confirm", pendingDeleteId);
     if (pendingDeleteId == null) return;
     deleteHandler(pendingDeleteId);
     setPendingDeleteId(null);
@@ -79,53 +81,94 @@ function Contacts() {
     setIsEditOpen(true);
     setEdit(id);
   };
-  const saveEdit = () => {
-    const update = {
-      id: edit,
-      ...contact,
-    };
-    setContacts((prev) => prev.map((c) => (c.id === edit ? update : c)));
+  const requestSaveEdit = () => {
+    const candidate = { id: edit, ...contact };
+    setIsPendingEdit(candidate);
+    setIsConfirmEditOpen(true);
+  };
+  const confirmSaveEditHandler = () => {
+    if (!pendingEdit) return;
+
+    setContacts((prev) =>
+      prev.map((c) => (c.id === pendingEdit.id ? pendingEdit : c))
+    );
+    setIsPendingEdit(null);
+    setIsConfirmEditOpen(false);
+    setIsEditOpen(false);
+    setEdit(null);
+
     setContact({
       name: "",
       lastName: "",
       email: "",
       phone: "",
     });
-    setIsEditOpen(false);
-    setEdit(null);
   };
+  const cancelSaveHandler = () => {
+    setIsPendingEdit(null);
+    setIsConfirmEditOpen(false);
+  };
+  const normalize = (v) => String(v ?? "".toLowerCase());
+  const text = (search ?? "").toLowerCase().trim();
+  const filterContact = contacts.filter((contact) => {
+    if (!text) return true;
+    return (
+      normalize(contact.name).includes(text) ||
+      normalize(contact.lastName).includes(text) ||
+      normalize(contact.email).includes(text)
+    );
+  });
   return (
-    <div className={styles.container}>
-      <div className={styles.form}>
-        {inputs.map((input, index) => (
+    <>
+      <div className={styles.container}>
+        <div>
+          <FaSearch />
           <input
-            key={index}
-            type={input.type}
-            placeholder={input.placeholder}
-            name={input.name}
-            value={contact[input.name]}
-            onChange={changeHandler}
+            type="text"
+            placeholder="Search here"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className={styles.searchInput}
           />
-        ))}
+        </div>
+        <div className={styles.form}>
+          {inputs.map((input, index) => (
+            <input
+              key={index}
+              type={input.type}
+              placeholder={input.placeholder}
+              name={input.name}
+              value={contact[input.name]}
+              onChange={changeHandler}
+            />
+          ))}
 
-        <button onClick={isEditOpen ? saveEdit : addHandler}>
-          {isEditOpen ? "save changes" : "add contact"}
-        </button>
-      </div>
-      <div className={styles.alert}>{alert && <p>{alert}</p>}</div>
-      <ContactsList
-        contacts={contacts}
-        handleDelete={handleDelete}
-        editHandler={editHandler}
-      />
-      {isConfirmOpen && (
-        <ConfirmModal
-          onConfirm={confirmDeleteHandler}
-          onCancel={cancelDeleteHandler}
-          message={"Are you sure you want to delete?"}
+          <button onClick={isEditOpen ? requestSaveEdit : addHandler}>
+            {isEditOpen ? "save changes" : "add contact"}
+          </button>
+        </div>
+        <div className={styles.alert}>{alert && <p>{alert}</p>}</div>
+        <ContactsList
+          contacts={filterContact}
+          handleDelete={handleDelete}
+          editHandler={editHandler}
         />
-      )}
-    </div>
+        {isConfirmOpen && (
+          <ConfirmModal
+            onConfirm={confirmDeleteHandler}
+            onCancel={cancelDeleteHandler}
+            message={"Are you sure you want to delete?"}
+          />
+        )}
+        {isConfirmEditOpen &&(
+          <ConfirmModal
+          message="Are you sure  you want to apply these changes?"
+          onConfirm={confirmSaveEditHandler}
+          onCancel={cancelSaveHandler}
+          />
+        )}
+      </div>
+    </>
   );
 }
 
