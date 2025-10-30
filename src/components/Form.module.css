@@ -1,0 +1,45 @@
+.form{
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+    
+
+
+}
+.actions{
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+    
+}
+.form input{
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    
+}
+.actions button{
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+.actions button:hover{
+    background:  #1a9d4c;
+}
+.save {
+    border: none;
+    background: #1eb311;
+    color: #fff;
+}
+.error{
+    background: #dc2626;
+    border: none;
+    color: #fff;
+    
+}
