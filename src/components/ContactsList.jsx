@@ -2,14 +2,14 @@ import React from "react";
 import Contacts from "./Contacts";
 import ContactItem from "./ContactItem";
 import styles from './ContactsList.module.css'
-function ContactsList({ contacts,handleDelete,editHandler}) {
+function ContactsList({ contacts,handleDelete,editHandler,toggleHandler,selectId}) {
   return (
     <div className={styles.container}>
       <h3>Contacts List</h3>
       {contacts.length ? (
         <ul className={styles.contacts}>
           {contacts.map((contact) => (
-            <ContactItem key={contact.id} data={contact} handleDelete={handleDelete} editHandler={editHandler} />
+            <ContactItem key={contact.id} data={contact} handleDelete={handleDelete} editHandler={editHandler} selectId={selectId}toggleHandler={toggleHandler} />
           ))}
         </ul>
       ) : (
