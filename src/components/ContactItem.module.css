@@ -37,3 +37,16 @@
 .item button:hover{
     font-size: 1.5rem;
 }
+.checkbox{
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    color:  #304ffe;
+    margin-right: 10px;
+
+}
+.section{
+    display: flex;
+    align-items: center;
+    color:  #304ffe;
+}
