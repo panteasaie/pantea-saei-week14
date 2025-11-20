@@ -8,18 +8,15 @@ import ConfirmModal from "./ConfirmModal";
 import styles from "./Contacts.module.css";
 import SearchBox from "./SearchBox";
 import useContacts from "../hooks/useContacts";
+import {
+  useContactsDispatch,
+  useContactsState,
+} from "../contexts/ContactsContext";
+
 function Contacts() {
-  const {
-    contacts,
-    addContact,
-    updateContact,
-    deleteContact,
-    deleteGroupContact,
-    selectId,
-    setSelectId,
-    toggleSelect,
-    clearSelect,
-  } = useContacts();
+  const { contacts, loading, error, selectIds ,addContact,updateContact,deleteContact,deleteGroupContact,toggleSelect,clearSelect} = useContactsState();
+  const dispatch = useContactsDispatch();
+
   const [alert, setAlert] = useState("");
   const [contact, setContact] = useState({
     id: "",
@@ -122,7 +119,8 @@ function Contacts() {
     );
   });
   const confirmGroupDelete = () => {
-    deleteGroupContact(selectId);
+    if(selectIds.length===0)return;
+    deleteGroupContact(selectIds);
     clearSelect();
     setConfirmDelete(false);
   };
@@ -144,7 +142,6 @@ function Contacts() {
 
     setErrors(nextErrors);
 
-    // ۲. اگر هر فیلدی خطا داشت => return
     const hasError = Object.values(nextErrors).some((e) => e !== null);
     if (hasError) {
       setTouch({
@@ -156,10 +153,10 @@ function Contacts() {
       return;
     }
 
-    // ۳. ارسال به API
+
     await addContact(contact);
 
-    // ۴. ریست کردن فرم
+
     setContact({
       name: "",
       lastName: "",
@@ -170,138 +167,138 @@ function Contacts() {
     setIsAddOpen(false);
   };
 
-const validatefield = (field, rawValue) => {
-  const v = String(rawValue ?? "");
-  const t = v.trim();
+  const validatefield = (field, rawValue) => {
+    const v = String(rawValue ?? "");
+    const t = v.trim();
 
-  if (field === "name") {
-    if (!t) return "نام الزامیست";
-    if (t.length < 2) return "حداقل 2 کارکتر!";
-    return null;
-  }
-  if (field === "latName") {
-    if (!t) return "نام خانوادگی الزامیست";
-    if (t.length < 2) return "حداقل 2 کارکتر";
-    return null;
-  }
-  if (field === "email") {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!t) return "ایمیل الزامیست";
-    if (!emailRegex.test(t)) return "فرمت ایمیل نامعتبر است";
+    if (field === "name") {
+      if (!t) return "نام الزامیست";
+      if (t.length < 2) return "حداقل 2 کارکتر!";
+      return null;
+    }
+    if (field === "latName") {
+      if (!t) return "نام خانوادگی الزامیست";
+      if (t.length < 2) return "حداقل 2 کارکتر";
+      return null;
+    }
+    if (field === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!t) return "ایمیل الزامیست";
+      if (!emailRegex.test(t)) return "فرمت ایمیل نامعتبر است";
 
-    const isDublicate = contacts.some(
-      (c) => c.email.toLowerCase() === t.toLowerCase()
-    );
-    if (isDublicate) return "این ایمیل قبلا ثبت شده";
+      const isDublicate = contacts.some(
+        (c) => c.email.toLowerCase() === t.toLowerCase()
+      );
+      if (isDublicate) return "این ایمیل قبلا ثبت شده";
+      return null;
+    }
+    if (field === "phone") {
+      if (!t) return null;
+      if (!/^\+?\d{8,15}$/.test(t)) return "شماره نامعتبر";
+      return null;
+    }
     return null;
-  }
-  if (field === "phone") {
-    if (!t) return null;
-    if (!/^\+?\d{8,15}$/.test(t)) return "شماره نامعتبر";
-    return null;
-  }
-  return null;
-};
+  };
 
-const handleBlur = (event) => {
-  const { name } = event.target;
-  setTouch((prev) => ({ ...prev, [name]: true }));
-};
-return (
-  <>
-    <div className={styles.container}>
-      <div>
-        <SearchBox
-          search={search}
-          setSearch={setSearch}
-          toggleHandler={toggleHandler}
+  const handleBlur = (event) => {
+    const { name } = event.target;
+    setTouch((prev) => ({ ...prev, [name]: true }));
+  };
+  return (
+    <>
+      <div className={styles.container}>
+        <div>
+          <SearchBox
+            search={search}
+            setSearch={setSearch}
+            toggleHandler={toggleHandler}
+          />
+        </div>
+        <div className={styles.form}>
+          {!isAddOpen && (
+            <>
+              {inputs.map((input, index) => (
+                <div key={index}>
+                  <input
+                    key={index}
+                    type={input.type}
+                    placeholder={input.placeholder}
+                    name={input.name}
+                    value={contact[input.name]}
+                    onChange={changeHandler}
+                    onBlur={handleBlur}
+                  />
+                  {touch[input.name] && errors[input.name] && (
+                    <p className={styles.errorText}>{errors[input.name]}</p>
+                  )}
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  if (isEditOpen) {
+                    requestSaveEdit();
+                  } else {
+                    handleAddSubmit();
+                  }
+                }}
+              >
+                {isEditOpen ? "save changes" : "add contact"}
+              </button>
+            </>
+          )}
+        </div>
+
+        <div className={styles.alert}>{alert && <p>{alert}</p>}</div>
+
+        {isAddOpen && (
+          <div
+            className={styles.validationForm}
+            onClick={() => setIsAddOpen(false)}
+          >
+            <div
+              className={styles.modal}
+              role="dialog"
+              aria-modal="true"
+              onClick={(event) => event.stopPropagation()}
+            ></div>
+          </div>
+        )}
+        <ContactsList
+          contacts={filterContact}
+          handleDelete={handleDelete}
+          editHandler={editHandler}
         />
-      </div>
-      <div className={styles.form}>
-        {!isAddOpen && (
-          <>
-            {inputs.map((input, index) => (
-              <div key={index}>
-                <input
-                  key={index}
-                  type={input.type}
-                  placeholder={input.placeholder}
-                  name={input.name}
-                  value={contact[input.name]}
-                  onChange={changeHandler}
-                  onBlur={handleBlur}
-                />
-                {touch[input.name] && errors[input.name] && (
-                  <p className={styles.errorText}>{errors[input.name]}</p>
-                )}
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                if (isEditOpen) {
-                  requestSaveEdit();
-                } else {
-                  handleAddSubmit()
-                }
-              }}
-            >
-              {isEditOpen ? "save changes" : "add contact"}
-            </button>
-          </>
+        {isConfirmOpen && (
+          <ConfirmModal
+            onConfirm={confirmDeleteHandler}
+            onCancel={cancelDeleteHandler}
+            message={"Are you sure you want to delete?"}
+          />
+        )}
+        {isConfirmEditOpen && (
+          <ConfirmModal
+            message="Are you sure  you want to apply these changes?"
+            onConfirm={confirmSaveEditHandler}
+            onCancel={cancelSaveHandler}
+          />
+        )}
+        { selectIds.length > 0 && (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className={styles.deleteBtn}
+          >
+            DeleteSelected({selectIds.length})
+          </button>
+        )}
+        {confirmDelete && (
+          <ConfirmModal
+            message={`Are you sure you want to delete${selectIds.length}contacts?`}
+            onCancel={() => setConfirmDelete(false)}
+            onConfirm={confirmGroupDelete}
+          />
         )}
       </div>
-
-      <div className={styles.alert}>{alert && <p>{alert}</p>}</div>
-
-      {isAddOpen && (
-        <div
-          className={styles.validationForm}
-          onClick={() => setIsAddOpen(false)}
-        >
-          <div
-            className={styles.modal}
-            role="dialog"
-            aria-modal="true"
-            onClick={(event) => event.stopPropagation()}
-          ></div>
-        </div>
-      )}
-      <ContactsList
-        contacts={filterContact}
-        handleDelete={handleDelete}
-        editHandler={editHandler}
-      />
-      {isConfirmOpen && (
-        <ConfirmModal
-          onConfirm={confirmDeleteHandler}
-          onCancel={cancelDeleteHandler}
-          message={"Are you sure you want to delete?"}
-        />
-      )}
-      {isConfirmEditOpen && (
-        <ConfirmModal
-          message="Are you sure  you want to apply these changes?"
-          onConfirm={confirmSaveEditHandler}
-          onCancel={cancelSaveHandler}
-        />
-      )}
-      {setSelectId.length > 0 && (
-        <button
-          onClick={() => setConfirmDelete(true)}
-          className={styles.deleteBtn}
-        >
-          DeleteSelected({selectId.length})
-        </button>
-      )}
-      {confirmDelete && (
-        <ConfirmModal
-          message={`Are you sure you want to delete${selectId.length}contacts?`}
-          onCancel={() => setConfirmDelete(false)}
-          onConfirm={confirmGroupDelete}
-        />
-      )}
-    </div>
-  </>
-);
+    </>
+  );
 }
 export default Contacts;

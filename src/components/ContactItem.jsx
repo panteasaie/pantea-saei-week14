@@ -1,17 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styles from './ContactItem.module.css'
 import { FaTrashCan,FaPhoneVolume } from "react-icons/fa6";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 import { RiEdit2Fill } from "react-icons/ri";
 import useContacts from '../hooks/useContacts';
+import { useContactsState } from '../contexts/ContactsContext';
+import { useContactsDispatch } from '../contexts/ContactsContext';
 function ContactItem({data:{id,name,lastName,email,phone},handleDelete,editHandler}) {
-  const{selectId,toggleSelect}=useContacts()
+  const {  selectIds,toggleSelect} = useContactsState();
+    const { updateContact} = useContactsState();
+    
+  const dispatch = useContactsDispatch();
   return (
     <li className={styles.item}>
       <div
       className={styles.section}>
         <input type='checkbox'
-        checked={selectId.includes(id)}
+        checked={selectIds.includes(id)}
         onChange={()=>toggleSelect(id)}
         className={styles.checkbox}/>
       </div>
